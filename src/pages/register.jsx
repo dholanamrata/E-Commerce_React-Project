@@ -2,8 +2,8 @@
 import Layout from "../Componets/Layout/layout"
 import Header from "../Componets/Header/header";
 import Footer from "../Componets/Footer/footer";
-import Form from 'react-bootstrap/Form';
-// import './register.css'
+// import Form from 'react-bootstrap/Form';
+import './register.css'
 
 
 
@@ -12,71 +12,41 @@ const Register = () => {
         <Header />
         <Layout>
             <div className="container mt-5 mb-5">
-            <form className="row g-3 needs-validation border rounded-1 p-5" novalidate>
-                <div className="col-md-4">
-                    <label for="validationCustom01" className="form-label">First name</label>
-                    <input type="text" className="form-control" id="validationCustom01" value="Mark" required/>
-                        <div className="valid-feedback">
-                            Looks good!
-                        </div>
-                </div>
-                <div className="col-md-4">
-                    <label for="validationCustom02" className="form-label">Last name</label>
-                    <input type="text" className="form-control" id="validationCustom02" value="Otto" required/>
-                        <div className="valid-feedback">
-                            Looks good!
-                        </div>
-                </div>
-                <div className="col-md-4">
-                    <label for="validationCustomUsername" className="form-label">Username</label>
-                    <div className="input-group has-validation">
-                        
-                        <input type="text" className="form-control" id="validationCustomUsername" aria-describedby="inputGroupPrepend" required/>
-                            <div className="invalid-feedback">
-                                Please choose a username.
+                <div className="row justify-content-center">
+                    <div className="col-md-6">
+                        <div className="card">
+                            <div className="card-header">
+                                <h1>Create Account</h1>
                             </div>
-                    </div>
-                </div>
-                <div className="col-md-6">
-                    <label for="validationCustom03" className="form-label">City</label>
-                    <input type="text" className="form-control" id="validationCustom03" required/>
-                        <div className="invalid-feedback">
-                            Please provide a valid city.
-                        </div>
-                </div>
-                <div className="col-md-3">
-                    <label for="validationCustom04" className="form-label">State</label>
-                    <select className="form-select" id="validationCustom04" required>
-                        <option selected disabled value="">Choose...</option>
-                        <option>...</option>
-                    </select>
-                    <div className="invalid-feedback">
-                        Please select a valid state.
-                    </div>
-                </div>
-                <div className="col-md-3">
-                    <label for="validationCustom05" className="form-label">Zip</label>
-                    <input type="text" className="form-control" id="validationCustom05" required/>
-                        <div className="invalid-feedback">
-                            Please provide a valid zip.
-                        </div>
-                </div>
-                <div className="col-12">
-                    <div className="form-check">
-                        <input className="form-check-input" type="checkbox" value="" id="invalidCheck" required/>
-                            <label className="form-check-label" for="invalidCheck">
-                                Agree to terms and conditions
-                            </label>
-                            <div className="invalid-feedback">
-                                You must agree before submitting.
+                            <div className="card-body">
+                                <form>
+                                    <div className="form-group">
+                                        <label htmlFor="username">Your name</label>
+                                        <input type="text" className="form-control" placeholder="Firstname and Last name" id="username" name="username" required />
+                                    </div>
+                                    <div className="form-group">
+                                        <label htmlFor="email">Email</label>
+                                        <input type="email" className="form-control" placeholder="abc@gmail.com" id="email" name="email" required />
+                                    </div>
+                                    <div className="form-group">
+                                        <label htmlFor="password">Password</label>
+                                        <input type="password" className="form-control" placeholder="**********" id="password" name="password" required />
+                                    </div>
+                                    <div>
+                                        <p>To verify your number, we will send you a text message with a temporary code. Message and data rates may apply.</p>
+                                    </div>
+                                    <button type="submit" className="continuebtn">Continue</button>
+                                    <div className="mt-2">
+                                        <p>Already have an account? Sign in</p>
+                                    </div>
+                                    <p>By creating an account or logging in, you agree to  Conditions of Use and Privacy Policy.</p>
+                                </form>
                             </div>
+                        </div>
                     </div>
                 </div>
-                <div className="col-12">
-                    <button className="btn btn-primary" type="submit">Submit form</button>
-                </div>
-            </form>
             </div>
+
 
         </Layout>
         <Footer />
