@@ -1,13 +1,29 @@
 import { GiShoppingCart } from "react-icons/gi";
 import { Link } from "react-router-dom";
-import { useSelector  } from "react-redux";
-
+import { useSelector, useDispatch } from "react-redux";
+import { filterProduct } from "../../redux/actions/action";
+import { authChecking } from "../../redux/actions/action";
+import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import './header.css'
 const Header = () => {
   const product = useSelector((state) => state);
+  const dispatch = useDispatch();
+  const Navigation = useNavigate()
+
+  function filterInput(e) {
+    dispatch(filterProduct(e.target.value));
+  }
+
+  function togglebuttonForAuth() {
+    dispatch(authChecking(false));
+    localStorage.removeItem("user");
+    Navigation('/')
+
+  }
   return (
     <>
-      <nav className="navbar navbar-expand-lg bg-body-tertiary" style={{boxShadow:"rgba(0, 0, 0, 0.24) 0px 3px 8px"}}>
+      <nav className="navbar navbar-expand-lg bg-body-tertiary" style={{ boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px" }}>
         <div className="container-fluid">
           <Link to="/" className="navbar-brand">
             <GiShoppingCart style={{ fontSize: "2rem" }} />
@@ -31,6 +47,8 @@ const Header = () => {
                 type="search"
                 placeholder="Search"
                 aria-label="Search"
+                onChange={filterInput}
+                onBlur={() => { }}
               />
               <button className="btn btn-outline-success" type="submit">
                 Search
@@ -42,20 +60,36 @@ const Header = () => {
                   Home
                 </Link>
               </li>
-              <li className="nav-item">
+              {/* <li className="nav-item">
                 <Link to="/register" className="nav-link">
                   Register
                 </Link>
-              </li>
+              </li> */}
               <li className="nav-item">
-                <Link to="/login" className="nav-link">
+                {/* <Link to="/login" className="nav-link">
                   login
-                </Link>
+                </Link> */}
+                {product.isUserLoggedIn ? (
+                  <Link
+                    to="/"
+                    className="nav-link"
+                    onClick={togglebuttonForAuth}
+                  >
+                    logout
+                  </Link>
+                ) : (
+                  <Link to="/login" className="nav-link">
+                    login
+                  </Link>
+                )}
               </li>
               <li className="nav-item">
                 <Link to="/cart" className="nav-link">
                   Cart({product.cartProduct.length})
                 </Link>
+              </li>
+              <li>
+
               </li>
             </ul>
           </div>

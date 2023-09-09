@@ -4,15 +4,15 @@ import * as Yup from "yup";
 import axios from 'axios';
 import "./signup.css";
 import {useNavigate} from 'react-router-dom'
+import {signInWithEmailAndPassword} from 'firebase/auth'
+import { Auth } from "../config/firebaseconfig";
 
 
 export const Signup = () => {
-    const navigate = useNavigate();
-    const  handleregister = () => {
-       
-        navigate("/register")
-      };
-    
+    const Navigation = useNavigate();  
+    function handleregister(){
+        Navigation("/register")
+    }  
     const { handleChange, handleBlur, handleSubmit, errors, values, touched } =
         useFormik({
             initialValues: {
@@ -29,24 +29,34 @@ export const Signup = () => {
                         "Minimum eight characters, at least one letter and one number"
                     )
                     .required("Required"),
-                confirmPassword: Yup.string()
-                    .oneOf([Yup.ref("password"), null], "password is not match")
-                    .required("Required"),
             }),
             onSubmit: async (values, action) => {
-                console.log(values)
-                try {
-                    const response = await axios.post("http://localhost:3000/data", values);
-                    console.log(response.data)
-                } catch (err) {
-                    alert(err.message)
-                }
+                // console.log(values)
+                // try {
+                //     const response = await axios.post("http://localhost:3000/data", values);
+                //     console.log(response.data)
+                // } catch (err) {
+                //     alert(err.message)
+                // }
 
-                action.resetForm();
+                // action.resetForm();
+                try {
+                    const data = await signInWithEmailAndPassword(
+                      Auth,
+                      values.email,
+                      values.password
+                    );
+                    if (data) {
+                      localStorage.setItem("user", data.user.accessToken);
+                      Navigation("/");
+                    }
+                  } catch (err) {
+                    console.log(err);
+                  }
+                  action.resetForm();
+                  
             },
         });
-
-    // console.log(errors);
     return (
         <>
             <section className="contact-info-area">
@@ -87,35 +97,13 @@ export const Signup = () => {
                                 <div className="error-div">{errors.password}</div>
                             ) : null}
                         </div>
-
-
-                        <div className="input-div">
-                            <input
-                                placeholder="ConfirmPassword"
-                                type="password"
-                                id="confirmPassword"
-                                name="confirmPassword"
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                value={values.confirmPassword}
-                                className={
-                                    errors.confirmPassword && touched.confirmPassword
-                                        ? "input-error"
-                                        : ""
-                                }
-                            />
-                            {touched.confirmPassword && errors.confirmPassword ? (
-                                <div className="error-div">{errors.confirmPassword}</div>
-                            ) : null}
-                        </div>
-                        
                         <div><button className="loginbtn" type="submit">submit</button></div>
                       
                     </form>
                     <div className="mt-3">
                             <h6 style={{ color: "gray" }}>By continuing, I agree to Flipkart’s Terms of Use & Privacy Policy</h6>
                             <h6 style={{ color: "gray" }}>Don’t have an account?</h6>
-                            <button onClick={handleregister}  className="registerbtn mb-1" type="submit">Register for New account</button>
+                            <button  onClick={handleregister} className="registerbtn mb-1" type="submit">Register for New account</button>
                     </div>
                 </div>
 

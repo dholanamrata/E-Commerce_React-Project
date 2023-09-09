@@ -2,7 +2,7 @@
 import Layout from "../Componets/Layout/layout"
 import Header from "../Componets/Header/header";
 import Footer from "../Componets/Footer/footer";
-import { Signup } from '../pages/signup'
+import { Signup } from './signup'
 // import loginImg from "../img/login.png"
 import loginImg from "../img/login_logo.png"
 import "./signup.css";
