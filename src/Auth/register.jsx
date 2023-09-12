@@ -10,9 +10,15 @@ import axios from 'axios';
 // import "./signup.css";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { Auth } from "../config/firebaseconfig";
-import { Link } from "react-router-dom";
+// import { Link } from "react-router-dom";
+import { useState } from "react";
+
 
 const Register = () => {
+    const [loginModeError, setloginModeError] = useState({
+        message: "",
+        isError: false,
+      });
     const { handleChange, handleBlur, handleSubmit, errors, values, touched } =
         useFormik({
             initialValues: {
@@ -49,15 +55,25 @@ const Register = () => {
 
                 // action.resetForm();
                 try {
-                    const user = await createUserWithEmailAndPassword(Auth, values.email, values.password)
-                    console.log(user)
-                } catch (err) {
-                    console.log(err)
-                }
-                action.confirmPassword = ""
-                action.resetForm();
-
-            },
+                    const responseRegistration = await createUserWithEmailAndPassword(
+                      Auth,
+                      values.email,
+                      values.password
+                    );
+                    const { user } = responseRegistration;
+                    if (responseRegistration) {
+                      localStorage.setItem("token", user.accessToken);
+                      dispatch(authChecking(true));
+                      navigation("/");
+                    }
+                  } catch (err) {
+                    setloginModeError((prev) => {
+                      return { ...prev, message: err.message, isError: true };
+                    });
+                  }
+                  action.confirmPassword = "";
+                  action.resetForm();
+                },
         });
 
     return <>
@@ -135,9 +151,17 @@ const Register = () => {
                     </div>
 
                     <div><button className="loginbtn" type="submit">Continue</button></div>
+                    {loginModeError.isError && (
+                        <p className="text-danger text-center fw-bold text-capitalize my-3 py-2 bg-success-subtle">
+                          {loginModeError.message.substring(
+                            22,
+                            loginModeError.message.length - 2
+                          )}
+                        </p>
+                      )}
                     <div className="mt-2">
-                        <p>Already have an account? <a class="link-opacity-100" href="./login">Log in</a></p>
-                        <p>Buying for work? <a class="link-opacity-100" href="./login">Create a free business account</a></p>
+                        <p>Already have an account? <a className="link-opacity-100" href="./login">Log in</a></p>
+                        <p>Buying for work? <a className="link-opacity-100" href="./login">Create a free business account</a></p>
                     </div>
                 </form>
             </div>

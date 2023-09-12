@@ -1,10 +1,10 @@
 import React from 'react'
 // import ReactDOM from 'react-dom/client'
 import Login from "./Auth/login";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route ,Link} from "react-router-dom";
 
 import Register from "./Auth/register";
-import Cart from "./product/cart";
+import Cart from "./product/cart/cart";
 import ProductList from './product/productlist';
 import Productdetail from "./product/productdetail";
 import "./App.css";
@@ -15,6 +15,8 @@ import { useEffect } from "react";
 
 function App() {
   const dispatch = useDispatch();
+  const isLogin = useSelector(state=>state.isUserLoggedIn)
+  console.log(isLogin)
 
   const token = localStorage.getItem("user");
   useEffect(() => {
@@ -28,7 +30,7 @@ function App() {
         <Route path="/" element={<ProductList />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/cart" element={<Cart />} />
+        <Route path="/cart" element={isLogin === false ? <h1>i think you are not logged in <Link to="/login">login here</Link></h1> : <Cart />} />
         <Route path="/product/detail/:id" element={<Productdetail />} />
         <Route path="*" element={<h1>page is not found</h1>} />
       </Routes>

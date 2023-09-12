@@ -3,16 +3,23 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import axios from 'axios';
 import "./signup.css";
-import {useNavigate} from 'react-router-dom'
-import {signInWithEmailAndPassword} from 'firebase/auth'
+import { useNavigate } from 'react-router-dom'
+import { signInWithEmailAndPassword } from 'firebase/auth'
 import { Auth } from "../config/firebaseconfig";
-
+import { useDispatch } from "react-redux";
+import { authChecking } from "../redux/actions/action";
+import { useState } from "react";
 
 export const Signup = () => {
-    const Navigation = useNavigate();  
-    function handleregister(){
+    const [loginModeError, setloginModeError] = useState({
+        message: "",
+        isError: false,
+      });
+    const Navigation = useNavigate();
+    const dispatch = useDispatch();
+    function handleregister() {
         Navigation("/register")
-    }  
+    }
     const { handleChange, handleBlur, handleSubmit, errors, values, touched } =
         useFormik({
             initialValues: {
@@ -42,19 +49,26 @@ export const Signup = () => {
                 // action.resetForm();
                 try {
                     const data = await signInWithEmailAndPassword(
-                      Auth,
-                      values.email,
-                      values.password
+                        Auth,
+                        values.email,
+                        values.password
                     );
                     if (data) {
-                      localStorage.setItem("user", data.user.accessToken);
-                      Navigation("/");
+                        localStorage.setItem("user", data.user.accessToken);
+                        const token = localStorage.getItem("user");
+                        if (token) {
+                            dispatch(authChecking(true));
+                        }
+                        Navigation("/");
                     }
-                  } catch (err) {
+                } catch (err) {
                     console.log(err);
-                  }
-                  action.resetForm();
-                  
+                    setloginModeError((prev) => {
+                        return { ...prev, message: err.message, isError: true };
+                      });
+                }
+                action.resetForm();
+
             },
         });
     return (
@@ -98,12 +112,19 @@ export const Signup = () => {
                             ) : null}
                         </div>
                         <div><button className="loginbtn" type="submit">submit</button></div>
-                      
+                        {loginModeError.isError && (
+                      <p className="text-danger text-center fw-bold text-capitalize my-3 py-2 bg-success-subtle">
+                        {loginModeError.message.substring(
+                          22,
+                          loginModeError.message.length - 2
+                        )}
+                      </p>
+                    )}
                     </form>
                     <div className="mt-3">
-                            <h6 style={{ color: "gray" }}>By continuing, I agree to Flipkart’s Terms of Use & Privacy Policy</h6>
-                            <h6 style={{ color: "gray" }}>Don’t have an account?</h6>
-                            <button  onClick={handleregister} className="registerbtn mb-1" type="submit">Register for New account</button>
+                        <h6 style={{ color: "gray" }}>By continuing, I agree to Flipkart’s Terms of Use & Privacy Policy</h6>
+                        <h6 style={{ color: "gray" }}>Don’t have an account?</h6>
+                        <button onClick={handleregister} className="registerbtn mb-1" type="submit">Register for New account</button>
                     </div>
                 </div>
 
