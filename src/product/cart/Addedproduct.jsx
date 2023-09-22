@@ -4,18 +4,42 @@ import { increaseItem, decreaseItem, removeCartItem } from "../../redux/actions/
 const AddedProduct = ({ list }) => {
   const dispatch = useDispatch();
 
-  function incrementItem(id) {
-    dispatch(increaseItem(id));
+  function incrementItem(productId) {
+    const arryOfIncrement = JSON.parse(
+      localStorage.getItem("cartData") || "[]"
+    );
+    const updatedData = arryOfIncrement.map((element) => {
+      if (element.id === parseFloat(productId)) {
+        return { ...element, Quantity: element.Quantity + 1 };
+      }
+      return element;
+    });
+    localStorage.setItem("cartData", JSON.stringify(updatedData));
+    dispatch(increaseItem(updatedData));
   }
 
   function decreamentItem(id) {
-    dispatch(decreaseItem(id));
+    const arryOfDecrement = JSON.parse(
+      localStorage.getItem("cartData") || "[]"
+    );
+    const updatedData = arryOfDecrement.map((element) => {
+      if (element.id === parseFloat(id)) {
+        return { ...element, Quantity: element.Quantity - 1 };
+      }
+      return element;
+    });
+    localStorage.setItem("cartData", JSON.stringify(updatedData));
+    dispatch(decreaseItem(updatedData));
   }
 
   function removeItemFromCart(id) {
-    dispatch(removeCartItem(id));
+    const arryOfRemove = JSON.parse(localStorage.getItem("cartData") || "[]");
+    const updatedData = arryOfRemove.filter(
+      (element) => element.id !== parseFloat(id)
+    );
+    localStorage.setItem("cartData", JSON.stringify(updatedData));
+    dispatch(removeCartItem(updatedData));
   }
-
   return (
     <div className="container mt-5 mb-2  ">
       {list.map((element) => (

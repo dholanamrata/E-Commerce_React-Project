@@ -10,11 +10,12 @@ import { useEffect } from "react";
 import { GiShoppingCart } from "react-icons/gi";
 import './productdetail.css'
 import { addtoCart } from "../redux/actions/action";
+import { array } from "yup";
 
 const Productdetail = () => {
     const { id } = useParams();
-    const product = useSelector((state) => state);
-    console.log(product);
+    const storeData = useSelector((state) => state);
+    
     const dispatch = useDispatch();
     const Navigat=useNavigate();
     const fetchsingleProductData = async () => {
@@ -27,9 +28,30 @@ const Productdetail = () => {
     }, [id]);
 
     function addTocart() {
-        dispatch(addtoCart({ ...product.selectedProduct, Quantity: 1 }));
-        Navigat("/cart");
-      }
+        if (storeData.isUserLoggedIn) {
+            // localStorage.setItem("cartData",JSON.stringify([]));
+            let flag = false
+            const Arry = JSON.parse(localStorage.getItem("cartData") || "[]");
+            console.log(Arry)
+            let data  = Arry.map((x)=>{
+              if(x.id == storeData.selectedProduct.id){
+                x.Quantity += 1 
+                flag = true
+                return x
+              }
+              return x;
+      
+            })
+            if(!flag){
+              data.push({ ...storeData.selectedProduct, Quantity: 1 });
+            }
+            localStorage.setItem("cartData", JSON.stringify(data));
+            dispatch(addtoCart(data));
+            Navigat("/cart");
+          } else {
+            alert("please login");
+          }
+        }
     return (
         <>
             <Header />
@@ -38,14 +60,14 @@ const Productdetail = () => {
                     <div className="card mb-3" style={{ Width: "1000px", border: "none ! important" }}>
                         <div className="row g-0">
                             <div className="col-md-4">
-                                <img src={product.selectedProduct.image} className="img-fluid rounded-start" alt="..." />
+                                <img src={storeData.selectedProduct.image} className="img-fluid rounded-start" alt="..." />
                             </div>
                             <div className="col-md-8">
                                 <div className="card-body">
-                                    <h6 className="card-title">{product.selectedProduct.title}</h6>
-                                    <h3 class="card-subtitle mb-2 text-body-secondary">Price: <span className="">&#x20B9;{product.selectedProduct.price} </span></h3>
+                                    <h6 className="card-title">{storeData.selectedProduct.title}</h6>
+                                    <h3 class="card-subtitle mb-2 text-body-secondary">Price: <span className="">&#x20B9;{storeData.selectedProduct.price} </span></h3>
                                     <p className="card-text">
-                                        {product.selectedProduct.description}
+                                        {storeData.selectedProduct.description}
                                     </p>
                                     <p className="card-text">
                                         <button onClick={addTocart} className="btn btn-warning text-light fw-bold "><GiShoppingCart style={{ fontSize: "1.5rem" }} /> Add to cart</button>

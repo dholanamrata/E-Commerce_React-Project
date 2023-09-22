@@ -12,18 +12,31 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { Auth } from "../config/firebaseconfig";
 // import { Link } from "react-router-dom";
 import { useState } from "react";
+import { authChecking } from "../redux/actions/action";
+import { useNavigate } from "react-router-dom";
 
+import { collection, addDoc } from "firebase/firestore";
+import { db } from "../config/firebaseconfig";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { storage } from "../config/firebaseconfig";
+import { useDispatch } from "react-redux";
+
+import { v4 } from "uuid";
+1;
 
 const Register = () => {
     const [loginModeError, setloginModeError] = useState({
         message: "",
         isError: false,
-      });
-    const { handleChange, handleBlur, handleSubmit, errors, values, touched } =
+    });
+    const dispatch = useDispatch();
+    const navigation = useNavigate();
+    const { handleChange, handleBlur, handleSubmit, setFieldValue,errors, values, touched } =
         useFormik({
             initialValues: {
                 name: "",
                 email: "",
+                file: "",
                 password: "",
                 confirmPassword: "",
             },
@@ -45,7 +58,7 @@ const Register = () => {
                     .required("Required"),
             }),
             onSubmit: async (values, action) => {
-                // console.log(values)
+                console.log(values)
                 // try {
                 //     const response = await axios.post("http://localhost:3000/data", values);
                 //     console.log(response.data)
@@ -60,20 +73,72 @@ const Register = () => {
                       values.email,
                       values.password
                     );
+                    const userDataRef = collection(db, "usersData")
+                    const fileName = values.file.name + v4()
+                    console.log(responseRegistration)
+                    const docRef = await addDoc((userDataRef), {
+                      userName: values.name,
+                      userEmail: values.email,
+                      userProfile: values.file.name ? fileName : "",
+                    });
+            
                     const { user } = responseRegistration;
+                    
                     if (responseRegistration) {
+                        console.log("hello")
                       localStorage.setItem("token", user.accessToken);
-                      dispatch(authChecking(true));
-                      navigation("/");
+                      if (values.file.name) {
+                        const storageRef = ref(
+                          storage,
+                          `/users/${fileName}`
+                        );
+                        uploadBytes(storageRef, values.file)
+                          .then((res) => {
+                            const refernce = ref(storage, res.ref._location.path_);
+                            return getDownloadURL(refernce);
+                          })
+                          .then((res) => {
+                            localStorage.setItem(
+                              `${values.email}`,
+                              JSON.stringify({
+                                url: res,
+                                email: values.email,
+                              })
+                            );
+                            dispatch(
+                              authChecking({
+                                email: values.email,
+                                flag: true,
+                              })
+                            );
+                            navigation("/");
+                          })
+                          .catch((err) => console.log(err));
+                      } else {
+                        localStorage.setItem(
+                          `${values.email}`,
+                          JSON.stringify({
+                            url: "",
+                            email: values.email,
+                          })
+                        );
+                        dispatch(
+                          authChecking({
+                            email: values.email,
+                            flag: true,
+                          })
+                        );
+                      }
                     }
                   } catch (err) {
+                    console.log(err)
                     setloginModeError((prev) => {
                       return { ...prev, message: err.message, isError: true };
                     });
                   }
                   action.confirmPassword = "";
                   action.resetForm();
-                },
+            },
         });
 
     return <>
@@ -108,6 +173,23 @@ const Register = () => {
                             className={errors.email && touched.email ? "input-error" : ""}
                         />
                         {touched.email && errors.email ? <div className="error-div">{errors.email}</div> : null}
+                    </div>
+
+                    <div className="input-div">
+                        <input
+                            className="form-control"
+                            type="file"
+                            name="file"
+                            id="file"
+                           
+                            onBlur={handleBlur}
+                            onChange={(event) => {
+                                console.log()
+                              setFieldValue("file", event.currentTarget.files[0])
+                            }
+                        }
+                        />
+                        {touched.file && errors.file ? <div className="error-div">{errors.file}</div> : null}
                     </div>
 
 
@@ -153,12 +235,12 @@ const Register = () => {
                     <div><button className="loginbtn" type="submit">Continue</button></div>
                     {loginModeError.isError && (
                         <p className="text-danger text-center fw-bold text-capitalize my-3 py-2 bg-success-subtle">
-                          {loginModeError.message.substring(
-                            22,
-                            loginModeError.message.length - 2
-                          )}
+                            {loginModeError.message.substring(
+                                22,
+                                loginModeError.message.length - 2
+                            )}
                         </p>
-                      )}
+                    )}
                     <div className="mt-2">
                         <p>Already have an account? <a className="link-opacity-100" href="./login">Log in</a></p>
                         <p>Buying for work? <a className="link-opacity-100" href="./login">Create a free business account</a></p>

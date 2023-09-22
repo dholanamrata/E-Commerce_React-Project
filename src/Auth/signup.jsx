@@ -4,11 +4,23 @@ import * as Yup from "yup";
 import axios from 'axios';
 import "./signup.css";
 import { useNavigate } from 'react-router-dom'
-import { signInWithEmailAndPassword } from 'firebase/auth'
+
 import { Auth } from "../config/firebaseconfig";
 import { useDispatch } from "react-redux";
 import { authChecking } from "../redux/actions/action";
 import { useState } from "react";
+import { Link } from "react-router-dom";
+
+import {
+  signInWithEmailAndPassword,
+  setPersistence,
+  browserSessionPersistence,
+} from "firebase/auth";
+
+import { getDocs, collection, query } from "firebase/firestore";
+import { db } from "../config/firebaseconfig";
+import { storage } from "../config/firebaseconfig";
+import { ref, getDownloadURL } from "firebase/storage";
 
 export const Signup = () => {
     const [loginModeError, setloginModeError] = useState({
@@ -38,37 +50,86 @@ export const Signup = () => {
                     .required("Required"),
             }),
             onSubmit: async (values, action) => {
-                // console.log(values)
-                // try {
-                //     const response = await axios.post("http://localhost:3000/data", values);
-                //     console.log(response.data)
-                // } catch (err) {
-                //     alert(err.message)
-                // }
-
-                // action.resetForm();
                 try {
-                    const data = await signInWithEmailAndPassword(
-                        Auth,
-                        values.email,
-                        values.password
-                    );
+                    const data = setPersistence(Auth, browserSessionPersistence).then(() => {
+                      signInWithEmailAndPassword(Auth, values.email, values.password);
+                    });
+              
                     if (data) {
-                        localStorage.setItem("user", data.user.accessToken);
-                        const token = localStorage.getItem("user");
-                        if (token) {
-                            dispatch(authChecking(true));
-                        }
+                      // localStorage.setItem("user", data.user.accessToken);
+                      // const token = localStorage.getItem("user");
+                      // if (token) {
+                      //   dispatch(authChecking(true));
+                      // }
+                      // Navigation("/");
+                      console.log("hello");
+                      const isUserstoreSomething = localStorage.getItem(`${values.email}`);
+                      if (!isUserstoreSomething) {
+                        const mydatabase = await getDocs(collection(db, "usersData"));
+                        mydatabase.forEach((query) => {
+                          if (
+                            query._document.data.value.mapValue.fields.userEmail
+                              .stringValue === values.email
+                          ) {
+                            const refernce = ref(
+                              storage,
+                              `users/${query._document.data.value.mapValue.fields.userProfile.stringValue}`
+                            );
+                            console.log(refernce);
+                            if (refernce) {
+                              getDownloadURL(refernce).then((res) => {
+                                localStorage.setItem(
+                                  `${values.email}`,
+                                  JSON.stringify({
+                                    url: res,
+                                    email: values.email,
+                                  })
+                                );
+                                dispatch(
+                                  authChecking({
+                                    email: values.email,
+                                    flag: true,
+                                  })
+                                );
+                              });
+                              Navigation("/");
+                            } else {
+                              dispatch(
+                                authChecking({
+                                  email: values.email,
+                                  flag: true,
+                                })
+                              );
+                              localStorage.setItem(
+                                `${values.email}`,
+                                JSON.stringify({
+                                  url: "",
+                                  email: values.email,
+                                })
+                              );
+                              Navigation("/");
+                            }
+                          }
+                        });
+                        // localStorage.setItem(`${values.email}`,)
+                      } else {
+                        dispatch(
+                          authChecking({
+                            email: values.email,
+                            flag: true,
+                          })
+                        );
                         Navigation("/");
+                      }
                     }
-                } catch (err) {
-                    console.log(err);
+                  } catch (err) {
+                    console.log(err.message);
                     setloginModeError((prev) => {
-                        return { ...prev, message: err.message, isError: true };
-                      });
-                }
-                action.resetForm();
-
+                      return { ...prev, message: err.message, isError: true };
+                    });
+                  }
+                  action.resetForm();
+                
             },
         });
     return (
@@ -120,6 +181,7 @@ export const Signup = () => {
                         )}
                       </p>
                     )}
+                    <Link to="/forgot/password">Forgot password?</Link>
                     </form>
                     <div className="mt-3">
                         <h6 style={{ color: "gray" }}>By continuing, I agree to Flipkart’s Terms of Use & Privacy Policy</h6>

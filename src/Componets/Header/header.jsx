@@ -5,19 +5,24 @@ import { filterProduct } from "../../redux/actions/action";
 import { authChecking } from "../../redux/actions/action";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import ModalProfile from "../../users/profileModal";
+import Profile from "../../users/profile";
 import './header.css'
 const Header = () => {
-  const product = useSelector((state) => state);
+  const userLogin = useSelector((state) => state.isUserLoggedIn.islogin);
   const dispatch = useDispatch();
   const Navigation = useNavigate()
 
   function filterInput(e) {
-    dispatch(filterProduct(e.target.value));
+    dispatch(filterProduct (e.target.value));
   }
 
   function togglebuttonForAuth() {
-    dispatch(authChecking(false));
-    localStorage.removeItem("user");
+    dispatch(authChecking({
+      email:"",
+      flag:false
+    }));
+    sessionStorage.removeItem(window.sessionStorage.key(0))
     Navigation('/')
 
   }
@@ -66,10 +71,7 @@ const Header = () => {
                 </Link>
               </li> */}
               <li className="nav-item">
-                {/* <Link to="/login" className="nav-link">
-                  login
-                </Link> */}
-                {product.isUserLoggedIn ? (
+              {userLogin ? (
                   <Link
                     to="/"
                     className="nav-link"
@@ -85,11 +87,14 @@ const Header = () => {
               </li>
               <li className="nav-item">
                 <Link to="/cart" className="nav-link">
-                  Cart({product.cartProduct.length})
+                cart(
+                    {/* {storeData.isUserLoggedIn ?
+                    JSON.parse(localStorage.getItem("cartData" || "[]")).length : 0} */}
+                  )
                 </Link>
               </li>
-              <li>
-
+              <li className="nav-item">
+              <Profile/>
               </li>
             </ul>
           </div>

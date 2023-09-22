@@ -16,7 +16,7 @@ export const filterProduct = (value)=>{
         text:value
     }
 }
-export const removeProduct = (product)=>{
+export const removeProduct = ()=>{
     return{
         type:"REMOVE_PRODUCT"
     }
@@ -27,17 +27,17 @@ export const addtoCart = (product)=>{
         payload:product
     }
 }
-export const increaseItem = (id) => {
+export const increaseItem = (product) => {
     return {
         type:"INCREASE_ITEM",
-        payload:id
+        payload:product
     }
 }
 
-export const decreaseItem = (id) => {
+export const decreaseItem = (product) => {
     return {
         type:"DECREASE_ITEM",
-        payload:id
+        payload:product
     }
 }
 export const authChecking = (flag)=>{
@@ -48,9 +48,9 @@ export const authChecking = (flag)=>{
     }
 }
 
-export const removeCartItem = (id)=>{
+export const removeCartItem = (product)=>{
     return {
         type:"REMOVE_TOCART",
-        payload:id
+        payload:product
     }
 }

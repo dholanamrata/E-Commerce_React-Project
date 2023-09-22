@@ -11,8 +11,8 @@ import "./App.css";
 import { authChecking } from './redux/actions/action';
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect } from "react";
-
-
+import Forgot from './Auth/forgot';
+ 
 function App() {
   const dispatch = useDispatch();
   const isLogin = useSelector(state=>state.isUserLoggedIn)
@@ -33,6 +33,7 @@ function App() {
         <Route path="/cart" element={isLogin === false ? <h1>i think you are not logged in <Link to="/login">login here</Link></h1> : <Cart />} />
         <Route path="/product/detail/:id" element={<Productdetail />} />
         <Route path="*" element={<h1>page is not found</h1>} />
+        <Route path="/forgot/password" element={<Forgot />} />
       </Routes>
     </>
   );
