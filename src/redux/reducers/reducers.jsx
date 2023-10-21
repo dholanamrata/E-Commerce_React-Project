@@ -1,7 +1,4 @@
-// const initialState = {
-//     product : []
-// }
-import { filterProduct } from "../actions/action";
+
 const initialData = {
   appliedFilters: [],
   products: [],
@@ -37,17 +34,23 @@ const productListReducer = (state = initialData, action) => {
       return { ...state };
   }
 };
-  
-  const selectedProductReducer = (state = {}, action) => {
-    switch (action.type) {
-      case "SELECT_PRODUCT":
-        return { ...action.payload };
-      default:
-        return state;
-    }
-  };
 
-  const arry = JSON.parse(localStorage.getItem("cartData")||"[]")
+const selectedProductReducer = (state = {}, action) => {
+  switch (action.type) {
+    case "SELECT_PRODUCT":
+      return { ...action.payload };
+    default:
+      return state;
+  }
+};
+
+const findEmail = JSON.parse(
+  sessionStorage.getItem(window.sessionStorage.key(0))
+)?.email;
+
+const arry = JSON.parse(localStorage.getItem(findEmail))?.cart || [];
+
+
 const addToCartReducer = (state = arry, action) => {
   switch (action.type) {
     case "ADD_PRODUCT_TOCART":
@@ -63,21 +66,23 @@ const addToCartReducer = (state = arry, action) => {
   }
 };
 
-  const Authentication = (state = false, action) => {
-    switch (action.type) {
-      case "LOGGED_IN":
-        return action.payload;
-      default:
-        return state;
-    }
-  };
-  
-  const productreducer = {
-    productListReducer,
-    selectedProductReducer,
-    addToCartReducer,
-    Authentication,
-  };
-  
-  
-  export default productreducer;
+const Authentication = (state = { email: "", islogin: false }, action) => {
+
+  switch (action.type) {
+    case "LOGGED_IN":
+      const { email, flag } = action.payload
+      return { ...state, email: action.payload.email, islogin: action.payload.flag };
+    default:
+      return state;
+  }
+};
+
+const productreducer = {
+  productListReducer,
+  selectedProductReducer,
+  addToCartReducer,
+  Authentication,
+};
+
+
+export default productreducer;

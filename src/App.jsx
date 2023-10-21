@@ -1,39 +1,66 @@
 import React from 'react'
-// import ReactDOM from 'react-dom/client'
-import Login from "./Auth/login";
+import { useEffect } from "react";
+
 import { Routes, Route ,Link} from "react-router-dom";
 
-import Register from "./Auth/register";
-import Cart from "./product/cart/cart";
-import ProductList from './product/productlist';
-import Productdetail from "./product/productdetail";
-import "./App.css";
-import { authChecking } from './redux/actions/action';
 import { useSelector, useDispatch } from "react-redux";
-import { useEffect } from "react";
-import Forgot from './Auth/forgot';
- 
+import { authChecking } from './redux/actions/action';
+
+import Login from "./pages/Auth/login/login";
+import Register from "./pages/Auth/register/register";
+import Forgot from './pages/Auth/forgot/forgot';
+
+import Cart from "./pages/cart/cartpage/cart";
+import ProductList from './pages/product/productlist/list';
+import Productdetail from "./pages/product/productdata/productdetail";
+import Payment from './pages/payment/payment_summary/payment';
+import PaymentSuccess from './pages/payment/payment-response/succes';
+import Cancelpayment from './pages/payment/payment-response/cancel';
+
+import "./App.css";
+
 function App() {
   const dispatch = useDispatch();
   const isLogin = useSelector(state=>state.isUserLoggedIn)
-  console.log(isLogin)
-
-  const token = localStorage.getItem("user");
+  
   useEffect(() => {
+    const token = JSON.parse(
+      sessionStorage.getItem(window.sessionStorage.key(0))
+    );
     if (token) {
-      dispatch(authChecking(true));
+      dispatch(
+        authChecking({
+          email: token.email,
+          flag: true,
+        })
+      );
     }
-  }, [token]);
+  }, []);
   return (
     <>
       <Routes>
         <Route path="/" element={<ProductList />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/cart" element={isLogin === false ? <h1>i think you are not logged in <Link to="/login">login here</Link></h1> : <Cart />} />
+        <Route
+          path="/cart"
+          element={
+            isLogin === false ? (
+              <h1>
+                i think you are not logged in{" "}
+                <Link to="/login">login here</Link>
+              </h1>
+            ) : (
+              <Cart />
+            )
+          }
+        />
         <Route path="/product/detail/:id" element={<Productdetail />} />
         <Route path="*" element={<h1>page is not found</h1>} />
         <Route path="/forgot/password" element={<Forgot />} />
+        <Route path="/add-address/payment" element={<Payment/>}/>
+        <Route path="/success" element={<PaymentSuccess/>}/>
+        <Route path="/cancel" element={<Cancelpayment/>}/>
       </Routes>
     </>
   );

@@ -4,25 +4,23 @@ import { useSelector, useDispatch } from "react-redux";
 import { filterProduct } from "../../redux/actions/action";
 import { authChecking } from "../../redux/actions/action";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import ModalProfile from "../../users/profileModal";
-import Profile from "../../users/profile";
+import Profile from "../../pages/user/profile";
 import './header.css'
 const Header = () => {
-  const userLogin = useSelector((state) => state.isUserLoggedIn.islogin);
+  const userLogin = useSelector((state) => state.isUserLoggedIn);
   const dispatch = useDispatch();
   const Navigation = useNavigate()
 
   function filterInput(e) {
-    dispatch(filterProduct (e.target.value));
+    dispatch(filterProduct(e.target.value));
   }
 
   function togglebuttonForAuth() {
     dispatch(authChecking({
-      email:"",
-      flag:false
+      email: "",
+      flag: false
     }));
-    sessionStorage.removeItem(window.sessionStorage.key(0))
+    sessionStorage.clear();
     Navigation('/')
 
   }
@@ -46,7 +44,7 @@ const Header = () => {
             <span className="navbar-toggler-icon" />
           </button>
           <div className="collapse navbar-collapse" id="navbarSupportedContent">
-            <form className="d-flex" role="search">
+            <form className="d-flex mt-3 mt-md-1" role="search">
               <input
                 className="form-control me-2 "
                 type="search"
@@ -65,13 +63,8 @@ const Header = () => {
                   Home
                 </Link>
               </li>
-              {/* <li className="nav-item">
-                <Link to="/register" className="nav-link">
-                  Register
-                </Link>
-              </li> */}
               <li className="nav-item">
-              {userLogin ? (
+                {userLogin.islogin ? (
                   <Link
                     to="/"
                     className="nav-link"
@@ -87,15 +80,15 @@ const Header = () => {
               </li>
               <li className="nav-item">
                 <Link to="/cart" className="nav-link">
-                cart(
-                    {/* {storeData.isUserLoggedIn ?
-                    JSON.parse(localStorage.getItem("cartData" || "[]")).length : 0} */}
+                  cart(
+                  {userLogin.islogin
+                    ? JSON.parse(localStorage.getItem(userLogin.email))?.cart
+                      ?.length
+                    : 0}
                   )
                 </Link>
               </li>
-              <li className="nav-item">
-              <Profile/>
-              </li>
+              <li className="nav-item">{userLogin.islogin && <Profile />}</li>
             </ul>
           </div>
         </div>

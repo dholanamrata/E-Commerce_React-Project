@@ -1,7 +1,7 @@
 import "./layout.css"
 const Layout = ({children})=>{
     return<>
-    <div className="container">
+    <div style={{minHeight:"100vh"}} className="row align-items-center">
     {children}
     </div>
     </>
